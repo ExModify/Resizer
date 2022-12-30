@@ -1,0 +1,205 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Resizer.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Resizer.View.MainWindow"
+        Title="Resizer"
+        Background="#222222"
+        Padding="5 0">
+    
+    <Design.DataContext>
+        <vm:MainWindowViewModel />
+    </Design.DataContext>
+    
+    <Window.Styles>
+        
+        <Style Selector="Border">
+            <Setter Property="Background" Value="#222222" />
+        </Style>
+        <Style Selector="Grid">
+            <Setter Property="Background" Value="#222222" />
+        </Style>
+        <Style Selector="TextBox,ProgressBar,TabItem,Button">
+            <Setter Property="Padding" Value="10 5"/>
+            <Setter Property="Height" Value="31"/>
+        </Style>
+        
+        <Style Selector="TextBox">
+            <Setter Property="Background" Value="#222222" />
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="TextBox:pointerover /template/ Border">
+            <Setter Property="Background" Value="#222222" />
+        </Style>
+        <Style Selector="TextBox:focus /template/ Border">
+            <Setter Property="Background" Value="#222222" />
+        </Style>
+        <Style Selector="TextBox /template/ Border">
+            <Setter Property="Background" Value="#333333" />
+        </Style>
+        
+        <Style Selector="Button.Close">
+            <Setter Property="Padding" Value="1 0 0 1" />
+            <Setter Property="Margin" Value="0 0 0 -1" />
+            <Setter Property="Background" Value="#de977e" />
+            
+            <Setter Property="Width" Value="21" />
+            <Setter Property="Height" Value="21" />
+            
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+        
+        <Style Selector="ListBoxItem.Done:selected /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#8cffa7" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Done:selected:focus /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#8cffa7" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Done:selected:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#41cf41" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Done:selected:focus:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#41cf41" /> 
+        </Style>
+        
+        <Style Selector="ListBoxItem.Skipped:selected /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#f5eb7f" />
+        </Style>
+        <Style Selector="ListBoxItem.Skipped:selected:focus /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#f5eb7f" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Skipped:selected:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#c7bc4a" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Skipped:selected:focus:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#c7bc4a" /> 
+        </Style>
+        
+        <Style Selector="TextBox.OpenDir">
+            <Setter Property="Padding" Value="10 10 70 10" />
+        </Style>
+        <Style Selector="Button.OpenDir">
+            <Setter Property="Padding" Value="1 -2 0 1" />
+            <Setter Property="Margin" Value="-50 0 0 0" />
+            <Setter Property="Background" Value="#151515" />
+            
+            <Setter Property="Width" Value="40" />
+            <Setter Property="Height" Value="21" />
+            
+            <Setter Property="HorizontalAlignment" Value="Center" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            
+            <Setter Property="BorderThickness" Value="1" />
+        </Style>
+        <Style Selector="Button.OpenDir /template/ Border">
+            <Setter Property="Background" Value="#333333" />
+        </Style>
+    </Window.Styles>
+    
+    <Grid ColumnDefinitions="300,4,*" RowDefinitions="Auto,*,Auto">
+        
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="Auto,*,0,Auto,*,0" RowDefinitions="Auto">
+            <Label Grid.Column="0" Content="Source folder" VerticalAlignment="Center"/>
+            <TextBox x:Name="SrcFolder" Grid.Column="1" Padding="10 5" Text="C:\Users\exmod\Desktop\resizer"
+                     KeyDown="SrcFolderKeyDown"/>
+            <Button Classes="OpenDir" Content=". . ." Grid.Column="2" Click="OpenSrc" />
+            
+            <Label Grid.Column="3" Content="Destination folder" VerticalAlignment="Center"/>
+            <TextBox x:Name="DstFolder" Grid.Column="4" Padding="10 5"  />
+            <Button Classes="OpenDir" Content=". . ." Grid.Column="5" Click="OpenDst" />
+        </Grid>
+        
+        <ListBox SelectionMode="Single" Grid.Row="1" Grid.Column="0" Items="{Binding Files}"
+                 DoubleTapped="ListDoubleTapped" x:Name="FileList">
+            <ListBox.Styles>
+                <Style Selector="ListBoxItem">
+                    <Setter Property="Padding" Value="4" />
+                </Style>
+            </ListBox.Styles>
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" />
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        
+        <GridSplitter Grid.Row="1" Grid.Column="1" Background="#333333" ResizeDirection="Columns"/>
+        
+        <TabControl Grid.Row="1" Grid.Column="2" DataContext="{Binding Croppers}"
+                    Items="{Binding}" x:Name="Tabs">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal" Spacing="30" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Heading}" />
+                        <Button Classes="Close" Content="X" IsVisible="{Binding 
+                            RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}},
+                            Path=!DataContext.IsLast}" Click="DeleteTab" />
+                    </StackPanel>
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+            
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    
+                    <Grid ColumnDefinitions="Auto,*" RowDefinitions="*,Auto">
+                        
+                        <Grid Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
+                            <ContentControl Grid.Column="0" Grid.Row="0"
+                                            Content="{Binding ImageControl}" />
+                        
+                            <ContentControl Grid.Column="0" Grid.Row="0"
+                                            Content="{Binding RectangleControl}" />
+                        </Grid>
+                        
+                        <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="0 5 5 0"
+                                    Spacing="5" VerticalAlignment="Center">
+                            <Label Content="Image X" VerticalAlignment="Center" />
+                            <TextBox Width="50" Text="{Binding OffsetX}" />
+                            <Label Content="Image Y" VerticalAlignment="Center" />
+                            <TextBox Width="50" Text="{Binding OffsetY}" />
+                            <Label Content="Zoom" VerticalAlignment="Center" />
+                            <TextBox Width="50" Text="{Binding Scale}" />
+                        </StackPanel>
+                        <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Margin="0 5 0 0"
+                                    Spacing="5" VerticalAlignment="Center">
+                            <Label Content="Src width" VerticalAlignment="Center"/>
+                            <Label Content="{Binding Width}" VerticalAlignment="Center"/>
+                            <Label Content="Src Height" VerticalAlignment="Center"/>
+                            <Label Content="{Binding Height}" VerticalAlignment="Center"/>
+                            
+                            <Label Content="'To be cropped' width" VerticalAlignment="Center"/>
+                            <Label Content="0px" VerticalAlignment="Center"/>
+                            <Label Content="height" VerticalAlignment="Center"/>
+                            <Label Content="0px" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+            
+        </TabControl>
+        <Button Grid.Row="1" Grid.Column="2" Content="+" Margin="0" VerticalAlignment="Top"
+                HorizontalAlignment="Right" Click="CreateNewTab" />
+        
+        <Grid Grid.Row="2" Grid.Column="0" ColumnDefinitions="Auto,Auto,*,Auto" RowDefinitions="Auto" Grid.ColumnSpan="3">
+            <Button Grid.Column="0" Content="Reset it/s" Click="ResetItClick"/>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Label Content="Your processing speed:" VerticalAlignment="Center"/>
+                <Label Content="0,00" VerticalAlignment="Center" x:Name="Speed"/>
+                <Label Content="it/s" VerticalAlignment="Center"/>
+            </StackPanel>
+            
+            <ProgressBar Grid.Column="2" ShowProgressText="True" Value="0" Maximum="100"
+                         Margin="0 0 5 0" x:Name="ProgressBar"/>
+            
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="5">
+                <Button Content="Skip" Click="SkipClicked" />
+                <Button Content="Previous" Click="PrevClicked" />
+                <Button Content="Next" Click="NextClicked" />
+                <Button Content="Finish" Click="FinishClick" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
