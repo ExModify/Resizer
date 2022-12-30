@@ -8,8 +8,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Threading;
+using Avalonia.VisualTree;
 using DynamicData;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Resizer.Classes;
 using Resizer.ViewModels;
 
@@ -45,21 +45,70 @@ public partial class MainWindow : Window
     
     private void SkipClicked(object? sender, RoutedEventArgs e)
     {
+        UpdateItemState(ItemState.Skipped);
+        OpenImage(FileList.SelectedIndex + 1);
         UpdateIt();
-        
+        UpdateStates();
     }
     private void PrevClicked(object? sender, RoutedEventArgs e)
     {
+        UpdateItemState(ItemState.Done);
+        Save();
+        OpenImage(FileList.SelectedIndex + 1);
         UpdateIt();
+        UpdateStates();
     }
     private void NextClicked(object? sender, RoutedEventArgs e) 
     {
+        UpdateItemState(ItemState.Done);
+        Save();
+        OpenImage(FileList.SelectedIndex + 1);
         UpdateIt();
+        UpdateStates();
     }
-    private void FinishClick(object? sender, RoutedEventArgs e) 
+    
+    private void FinishClick(object? sender, RoutedEventArgs e)
     {
+        UpdateItemState(ItemState.Done);
+        Save();
+        UpdateStates();
         _previousTime = DateTime.Now;
+    }
 
+    private void UpdateItemState(ItemState state)
+    {
+        MainWindowViewModel ctx = (MainWindowViewModel)DataContext!;
+        
+        int index = ctx.Files.IndexOf(ctx.Croppers[0].File!);
+        if (FileList.SelectedIndex != index)
+            FileList.SelectedIndex = index;
+        
+        IControl ctrl = FileList.ItemContainerGenerator.ContainerFromIndex(FileList.SelectedIndex);
+        ctrl.Classes.Clear();
+        switch (state)
+        {
+            case ItemState.Skipped:
+                ctrl.Classes.Add("Skipped");
+                break;
+            case ItemState.Done:
+            default:
+                ctrl.Classes.Add("Done");
+                break;
+        }
+    }
+    private void UpdateStates()
+    {
+        PrevBtn.IsEnabled = FileList.SelectedIndex > 0;
+        SkipBtn.IsEnabled = NextBtn.IsEnabled = FileList.SelectedIndex + 1 < FileList.ItemCount;
+        FinishBtn.IsEnabled = true;
+
+        int currentProgress = FileList.ItemContainerGenerator.Containers.Count(t =>
+            t.ContainerControl.Classes.Contains("Skipped") || t.ContainerControl.Classes.Contains("Done"));
+        ProgressBar.Value = ProgressBar.Maximum * (currentProgress / (double)FileList.ItemCount);
+    }
+
+    private void Save()
+    {
         string path = DstFolder.Text;
         if (string.IsNullOrWhiteSpace(path))
         {
@@ -108,7 +157,6 @@ public partial class MainWindow : Window
     {
         await OpenFolderAsync(SrcFolder);
         await ReadDirAsync();
-        
     }
     private async void OpenDstFolder()
     {
@@ -135,6 +183,8 @@ public partial class MainWindow : Window
             
             if (paths.Count > 0)
                 OpenImage(0);
+            
+            UpdateStates();
         });
     }
 

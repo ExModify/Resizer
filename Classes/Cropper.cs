@@ -142,6 +142,8 @@ public class Cropper : ReactiveObject
             _scale.ScaleX = val;
             
             this.RaisePropertyChanged();
+            ToBeCroppedWidth = "";
+            ToBeCroppedHeight = "";
         }
     }
     public double OffsetX 
@@ -159,6 +161,26 @@ public class Cropper : ReactiveObject
         set
         {
             _translate.Y = value;
+            this.RaisePropertyChanged();
+        }
+    }
+
+    public string ToBeCroppedWidth
+    {
+        get => (_rectangleControl.Width * (1 / (Scale / 100))).ToString("N2") + "px";
+        set
+        {
+            _ = value;
+            this.RaisePropertyChanged();
+        }
+    }
+
+    public string ToBeCroppedHeight
+    {
+        get => (_rectangleControl.Height * (1 / (Scale / 100))).ToString("N2") + "px";
+        set
+        {
+            _ = value;
             this.RaisePropertyChanged();
         }
     }
