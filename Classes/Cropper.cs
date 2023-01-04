@@ -9,8 +9,6 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
-using Avalonia.Rendering;
-using Avalonia.Utilities;
 using Avalonia.Visuals.Media.Imaging;
 using ReactiveUI;
 
@@ -144,13 +142,18 @@ public class Cropper : ReactiveObject
             this.RaisePropertyChanged();
             ToBeCroppedWidth = "";
             ToBeCroppedHeight = "";
+            
+            MoveImage(0, 0);
+            MoveCropper(0, 0);
         }
     }
     public double OffsetX 
     {
         get => _translate.X;
-        set 
+        set
         {
+            if (!(Math.Abs(_translate.X - value) > 0.001)) return;
+            
             _translate.X = value;
             this.RaisePropertyChanged();
         }
@@ -160,6 +163,8 @@ public class Cropper : ReactiveObject
         get => _translate.Y;
         set
         {
+            if (!(Math.Abs(_translate.Y - value) > 0.00001)) return;
+            
             _translate.Y = value;
             this.RaisePropertyChanged();
         }
@@ -237,8 +242,14 @@ public class Cropper : ReactiveObject
             _rectangleControl.IsVisible = false;
             return;
         }
+
+        if (_imageControl.Parent == null)
+        {
+            
+            return;
+        }
         
-        double renderScale = _imageControl.Parent!.Bounds.Height / _image.Size.Height;
+        double renderScale = _imageControl.Parent.Bounds.Height / _image.Size.Height;
         if (ImageAr > ControlAr)
             renderScale = _imageControl.Parent.Bounds.Width / _image.Size.Width;
         
@@ -263,9 +274,6 @@ public class Cropper : ReactiveObject
             Scale += e.Delta.X * ResizerConfig.ScaleMultiplier;
         else
             Scale += e.Delta.Y * ResizerConfig.ScaleMultiplier;
-        
-        MoveImage(0, 0);
-        MoveCropper(0, 0);
     }
 
     private void ImageMouseUp(object? sender, PointerReleasedEventArgs e)
@@ -359,9 +367,18 @@ public class Cropper : ReactiveObject
 
         if (image.Width > _imageControl.Parent.Bounds.Width)
         {
-            if (futureX <= 0 && futureX + image.Width >= _imageControl.Parent.Bounds.Width)
+            
+            switch (futureX)
             {
-                OffsetX += offsetX;
+                case <= 0 when futureX + image.Width >= _imageControl.Parent.Bounds.Width:
+                    OffsetX += offsetX;
+                    break;
+                case > 0:
+                    OffsetX -= image.X;
+                    break;
+                default:
+                    OffsetX = (_imageControl.Parent.Bounds.Width - image.Width) / 2;
+                    break;
             }
         }
         else
@@ -371,9 +388,17 @@ public class Cropper : ReactiveObject
 
         if (image.Height > _imageControl.Bounds.Height)
         {
-            if (futureY <= 0 && futureY + image.Height >= _imageControl.Parent.Bounds.Height)
+            switch (futureY)
             {
-                OffsetY += offsetY;
+                case <= 0 when futureY + image.Height >= _imageControl.Parent.Bounds.Height:
+                    OffsetY += offsetY;
+                    break;
+                case > 0:
+                    OffsetY -= image.Y;
+                    break;
+                default:
+                    OffsetY = (_imageControl.Parent.Bounds.Height - image.Height) / 2;
+                    break;
             }
         }
         else
