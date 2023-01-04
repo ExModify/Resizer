@@ -47,6 +47,7 @@ public static class ResizerConfig
         if (!File.Exists("config.json"))
         {
             Instance = new();
+            SaveConfig();
             return;
         }
 

@@ -54,7 +54,7 @@ public partial class MainWindow : Window
     {
         UpdateItemState(ItemState.Done);
         Save();
-        OpenImage(FileList.SelectedIndex + 1);
+        OpenImage(FileList.SelectedIndex - 1);
         UpdateIt();
         UpdateStates();
     }
@@ -73,6 +73,11 @@ public partial class MainWindow : Window
         Save();
         UpdateStates();
         _previousTime = DateTime.Now;
+        
+        MainWindowViewModel model = (MainWindowViewModel)DataContext!;
+        model.Files.Clear();
+        while (model.Croppers.Count > 2) model.Croppers.RemoveAt(1);
+        model.Croppers[0].File = null;
     }
 
     private void UpdateItemState(ItemState state)
@@ -140,23 +145,25 @@ public partial class MainWindow : Window
         
         Speed.Content = it.ToString("N2");
     }
-    private async Task OpenFolderAsync(TextBox target)
+    private async Task<bool> OpenFolderAsync(TextBox target)
     {
         OpenFolderDialog dialog = new();
         string? value = await dialog.ShowAsync(this);
 
-        if (value != null)
+        if (value == null) return false;
+        
+        await Dispatcher.UIThread.InvokeAsync(() =>
         {
-            await Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                target.Text = value;
-            });
-        }
+            target.Text = value;
+            OpenSrcFolderBtn.IsEnabled = true;
+        });
+        
+        return true;
     }
     private async void OpenSrcFolder()
     {
-        await OpenFolderAsync(SrcFolder);
-        await ReadDirAsync();
+        if (await OpenFolderAsync(SrcFolder))
+            await ReadDirAsync();
     }
     private async void OpenDstFolder()
     {
@@ -236,10 +243,10 @@ public partial class MainWindow : Window
         int i = 0;
         for (; i < model.Croppers.Count; i++)
         {
-            model.Croppers[i].Heading = (i + 1) + ".";
+            model.Croppers[i].Heading = i + 1 + ".";
         }
 
-        return (i + 1) + ".";
+        return i + 1 + ".";
     }
 
     private void SrcFolderKeyDown(object? sender, KeyEventArgs e)
@@ -248,5 +255,12 @@ public partial class MainWindow : Window
         {
             Task.Run(ReadDirAsync);
         }
+
+        OpenSrcFolderBtn.IsEnabled = !string.IsNullOrWhiteSpace(SrcFolder.Text);
+    }
+
+    private void OpenSourceFolder(object? sender, RoutedEventArgs e)
+    {
+        Task.Run(ReadDirAsync);
     }
 }

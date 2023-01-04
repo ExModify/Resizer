@@ -52,37 +52,48 @@
             <Setter Property="VerticalAlignment" Value="Center" />
         </Style>
         
+        
         <Style Selector="ListBoxItem.Done /template/ ContentPresenter">
             <Setter Property="BorderBrush" Value="#8cffa7" /> 
         </Style>
         <Style Selector="ListBoxItem.Done:selected /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#8cffa7" /> 
+            <Setter Property="BorderBrush" Value="#549964" /> 
         </Style>
         <Style Selector="ListBoxItem.Done:selected:focus /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#8cffa7" /> 
-        </Style>
-        <Style Selector="ListBoxItem.Done:selected:pointerover /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#41cf41" /> 
-        </Style>
-        <Style Selector="ListBoxItem.Done:selected:focus:pointerover /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#41cf41" /> 
+            <Setter Property="BorderBrush" Value="#549964" /> 
         </Style>
         
+        <Style Selector="ListBoxItem.Done:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#216821" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Done:selected:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#216821" /> 
+        </Style>
+        <Style Selector="ListBoxItem.Done:selected:focus:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#216821" /> 
+        </Style>
+        
+        
         <Style Selector="ListBoxItem.Skipped /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#f5eb7f" />
+            <Setter Property="BorderBrush" Value="#FFF284" />
         </Style>
         <Style Selector="ListBoxItem.Skipped:selected /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#f5eb7f" />
+            <Setter Property="BorderBrush" Value="#CCCC4F" />
         </Style>
         <Style Selector="ListBoxItem.Skipped:selected:focus /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#f5eb7f" /> 
+            <Setter Property="BorderBrush" Value="#CCCC4F" /> 
+        </Style>
+        
+        <Style Selector="ListBoxItem.Skipped:pointerover /template/ ContentPresenter">
+            <Setter Property="BorderBrush" Value="#998F4F" /> 
         </Style>
         <Style Selector="ListBoxItem.Skipped:selected:pointerover /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#c7bc4a" /> 
+            <Setter Property="BorderBrush" Value="#998F4F" /> 
         </Style>
         <Style Selector="ListBoxItem.Skipped:selected:focus:pointerover /template/ ContentPresenter">
-            <Setter Property="BorderBrush" Value="#c7bc4a" /> 
+            <Setter Property="BorderBrush" Value="#998F4F" /> 
         </Style>
+        
         
         <Style Selector="TextBox.OpenDir">
             <Setter Property="Padding" Value="10 10 70 10" />
@@ -107,15 +118,17 @@
     
     <Grid ColumnDefinitions="300,4,*" RowDefinitions="Auto,*,Auto">
         
-        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="Auto,*,0,Auto,*,0" RowDefinitions="Auto">
-            <Label Grid.Column="0" Content="Source folder" VerticalAlignment="Center"/>
-            <TextBox x:Name="SrcFolder" Grid.Column="1" Padding="10 5" Text="C:\Users\exmod\Desktop\resizer"
+        <Grid Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="Auto,*,0,Auto,Auto,*,0" RowDefinitions="Auto">
+            <Label Grid.Column="0" Content="Dataset" VerticalAlignment="Center"/>
+            <TextBox x:Name="SrcFolder" Grid.Column="1" Padding="10 5" Text=""
                      KeyDown="SrcFolderKeyDown"/>
             <Button Classes="OpenDir" Content=". . ." Grid.Column="2" Click="OpenSrc" />
+            <Button Content="Open" Grid.Column="3" Click="OpenSourceFolder" IsEnabled="False" Margin="5 0"
+                    x:Name="OpenSrcFolderBtn"/>
             
-            <Label Grid.Column="3" Content="Destination folder" VerticalAlignment="Center"/>
-            <TextBox x:Name="DstFolder" Grid.Column="4" Padding="10 5"  />
-            <Button Classes="OpenDir" Content=". . ." Grid.Column="5" Click="OpenDst" />
+            <Label Grid.Column="4" Content="Output folder" VerticalAlignment="Center"/>
+            <TextBox x:Name="DstFolder" Grid.Column="5" Padding="10 5"  />
+            <Button Classes="OpenDir" Content=". . ." Grid.Column="6" Click="OpenDst" />
         </Grid>
         
         <ListBox SelectionMode="Single" Grid.Row="1" Grid.Column="0" Items="{Binding Files}"
